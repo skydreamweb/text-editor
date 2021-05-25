@@ -51,18 +51,17 @@ export default {
       });
       this.canvas.add(newText);
     },
-    resizeHandler(arg) {
-      // this.currentText = this.canvas.getActiveObject(this.canvas.item(0));
+    resizeHandler(attributes) {
       let currentObj = this.canvas.getActiveObject(this.canvas.item(0));
       if (currentObj) {
-        if (arg.type == "size") {
-          currentObj.set("fontSize", arg.value);
-        } else if (arg.type == "line") {
-          currentObj.set("lineHeight", arg.value);
-        } else if (arg.type == "text") {
-          currentObj.set("text", arg.value);
-        } else if (arg.type == "font") {
-          currentObj.set("fontFamily", arg.value);
+        if (attributes.type == "size") {
+          currentObj.set("fontSize", attributes.value);
+        } else if (attributes.type == "line") {
+          currentObj.set("lineHeight", attributes.value);
+        } else if (attributes.type == "text") {
+          currentObj.set("text", attributes.value);
+        } else if (attributes.type == "font") {
+          currentObj.set("fontFamily", attributes.value);
         }
         this.canvas.requestRenderAll();
       }
