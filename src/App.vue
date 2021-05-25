@@ -1,10 +1,16 @@
 <template>
   <div id="app">
     <Header></Header>
-    <div class="canvas">
+    <div class="canvas" @click="resize($event)">
       <canvas ref="can" width="500" height="700"></canvas>
     </div>
-    <SideBar></SideBar>
+    <SideBar
+      :resizedFontSize="resizedFontSize"
+      :selectedFontFamily="selectedFontFamily"
+      :changedText="changedText"
+      @resized="resizeHandler"
+      @inputChange="addText"
+    ></SideBar>
   </div>
 </template>
 
@@ -19,15 +25,68 @@ export default {
     SideBar,
     Header,
   },
+  data() {
+    return {
+      ref: null,
+      canvas: null,
+      resizedFontSize: null,
+      selectedFontFamily: "",
+      changedText: "",
+    };
+  },
   mounted() {
-    const ref = this.$refs.can;
-    const canvas = new fabric.Canvas(ref);
-    const rect = new fabric.Rect({
-      fill: "red",
-      width: 20,
-      height: 20,
-    });
-    canvas.add(rect);
+    this.ref = this.$refs.can;
+    this.canvas = new fabric.Canvas(this.ref);
+  },
+  methods: {
+    addText({ text, size, font, line }) {
+      var newText = new fabric.IText(text, {
+        left: Math.floor(Math.random() * (300 - 1 + 1)) + 1,
+        top: Math.floor(Math.random() * (600 - 1 + 1)) + 1,
+        fontFamily: font,
+        lineHeight: line,
+        fill: "#333",
+        fontSize: size,
+        objecttype: "text",
+      });
+      this.canvas.add(newText);
+    },
+    resizeHandler(arg) {
+      // this.currentText = this.canvas.getActiveObject(this.canvas.item(0));
+      let currentObj = this.canvas.getActiveObject(this.canvas.item(0));
+      if (currentObj) {
+        if (arg.type == "size") {
+          currentObj.set("fontSize", arg.value);
+        } else if (arg.type == "line") {
+          currentObj.set("lineHeight", arg.value);
+        } else if (arg.type == "text") {
+          currentObj.set("text", arg.value);
+        } else if (arg.type == "font") {
+          currentObj.set("fontFamily", arg.value);
+        }
+        this.canvas.requestRenderAll();
+      }
+    },
+    // change the font size on scaling
+    resize() {
+      let vm = this;
+      this.canvas.on("object:scaling", function (event) {
+        if (event.target.fontSize) {
+          vm.resizedFontSize = (
+            event.target.fontSize * event.target.scaleX
+          ).toFixed(0);
+        }
+      });
+      this.canvas.on("mouse:up", function (event) {
+        if (event.target) {
+          vm.selectedFontFamily = event.target.fontFamily;
+          vm.changedText = event.target.text;
+          vm.resizedFontSize = (
+            event.target.fontSize * event.target.scaleX
+          ).toFixed(0);
+        }
+      });
+    },
   },
 };
 </script>

@@ -5,7 +5,9 @@
       <li>
         <label for="enterText">Enter Text</label>
         <div class="txt-input">
-          <input name="enterText" type="text" /><button @click="addText">
+          <input v-model="textInput" name="enterText" type="text" /><button
+            @click="addText"
+          >
             +
           </button>
         </div>
@@ -13,20 +15,19 @@
       <li class="d-flex">
         <div class="half-field">
           <label for="fontSize">Font Size</label>
-          <input type="number" name="fontSize" />
+          <input v-model="fontSize" type="number" name="fontSize" />
         </div>
         <div class="half-field">
           <label for="lineHeight">Line Height</label>
-          <input type="number" name="lineHeight" />
+          <input v-model="lineHeight" type="number" name="lineHeight" />
         </div>
       </li>
       <li>
         <label for="fontFamily">Change Font family</label>
-        <select for="fontFamily">
-          <option value="volvo">Volvo</option>
-          <option value="saab">Saab</option>
-          <option value="opel">Opel</option>
-          <option value="audi">Audi</option>
+        <select v-model="selectedFont">
+          <option for="fontFamily" v-for="(item, key) in fontFamily" :key="key">
+            {{ item }}
+          </option>
         </select>
       </li>
     </ul>
@@ -36,15 +37,65 @@
 <script>
 export default {
   name: "SideBar",
+  props: ["resizedFontSize", "changedText", "selectedFontFamily"],
+  data() {
+    return {
+      textInput: "Hello World",
+      fontSize: 12,
+      selectedFont: "Arial",
+      lineHeight: 1,
+      newFontFamily: "",
+      fontFamily: [
+        "Arial",
+        "Verdana",
+        "Helvetica",
+        "Tahoma",
+        "Trebuchet MS",
+        "Times New Roman",
+        "Georgia",
+        "Garamond",
+        "Courier New",
+        "Brush Script MT",
+      ],
+    };
+  },
   methods: {
     addText() {
-      console.log("Dodao");
+      this.$emit("inputChange", {
+        text: this.textInput,
+        size: this.fontSize,
+        font: this.selectedFont,
+        line: this.lineHeight,
+      });
+    },
+  },
+  watch: {
+    textInput: function () {
+      this.$emit("resized", { type: "text", value: this.textInput });
+    },
+    fontSize: function () {
+      this.$emit("resized", { type: "size", value: this.fontSize });
+    },
+    selectedFont: function () {
+      this.$emit("resized", { type: "font", value: this.selectedFont });
+    },
+    lineHeight: function () {
+      this.$emit("resized", { type: "line", value: this.lineHeight });
+    },
+    // watch for props update
+    resizedFontSize: function () {
+      this.fontSize = this.resizedFontSize;
+    },
+    changedText: function () {
+      this.textInput = this.changedText;
+    },
+    selectedFontFamily: function () {
+      this.selectedFont = this.selectedFontFamily;
     },
   },
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 aside {
   position: absolute;
